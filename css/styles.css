@@ -3,10 +3,15 @@
     width: 1200px;
     height: 800px;
     padding: 10px;
-    border: 5px solid gray;
+    border: 5px solidgreen;
     margin: 10;
     background-color: lightgreen;
+    font-size: 14px;
+    text-decoration-color: white
 
+}
+.container4 {
+  font-size: 10;
 }
 .container1 {
   float: left;
@@ -18,14 +23,17 @@
 
 }
 .container2 {
-  float: right;
+  float: center;
   padding: inherit;
   margin-right: auto;
   text-decoration-color: #ffb3b3;
   font-size: 8px;
+  background-color: white;
 
 }
+.player-1-panel {
 
+}
 .dice {
     position: relative;
     left: 50%;
@@ -37,13 +45,15 @@
 
 
 body {
-    background: #C9FFBF;
+    background-color: skyblue;
     font-family: Lato;
     font-weight: 300;
     position: relative;
     height: 100vh;
-    color: #555;
-    background-image: url(../image/dice3.jpg);
+    color: skyblue;
+      background-color: Blue;
+    background-image: url(../images/dice2.jpg);
+
 }
 
 
@@ -54,7 +64,6 @@ body {
     height: 600px;
     padding: 100px;
     background-image: url(../images/c.jpg);
-    text-decoration-color: white;
 }
 
 

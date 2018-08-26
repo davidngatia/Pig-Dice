@@ -1,94 +1,111 @@
+var Player = {
+  setNumber: function(number) {
+    this.number = number;
+  },
+  addPoints: function(points) {
+    this.score += points;
+  },
+  score: 0
+};
 
-var scores, roundScore, activePlayer,gamePlaying;
-var btnRoll = document.querySelector('.btn-roll');
-var btnHold = document.querySelector('.btn-hold');
-document.querySelector('.btn-roll').addEventListener('click', function(){
-	if (gamePlaying) {
-		var dice = Math.floor(Math.random() * 6) + 1;
-		var diceDOM = document.querySelector('.dice');
-		diceDOM.style.display = 'block';
-		diceDOM.src = diceimgs['diceimg' + activePlayer + dice];
-		document.querySelector('#current-' + activePlayer).innerHTML = '<em>' + dice + '</em';
-		if (dice !== 1) {
-			hideRolledMsg();
-			roundScore += dice;
-			document.querySelector('#current-' + activePlayer).textContent = roundScore;
-		} else {
-			disableBtn(btnRoll, 1000);
-			hideRolledMsg();
-			document.querySelector('.player-'+activePlayer+'-rolled-1').style.visibility = 'visible';
-			nextPlayer();
-		}
-	}
+var Turn = {
+  points: 0,
+  setPlayer: function(player1) {
+    this.player = player;
+  },
+  roll: function() {
+    var die = Object.create(Die);
+    var roll = die.roll();
+    if (roll === 1) {
+      this.over = true;
+      this.points = 0;
+    } else {
+      this.points += roll;
+    }
+    return roll;
+  },
+  hold: function() {
+    this.player.addPoints(this.points);
+    this.over = true;
+  }
+};
 
+var Die = {
+  roll: function() {
+    return Math.floor(Math.random() * 5 + 1);
+  }
+};
 
+var Game = {
+  createPlayers: function(numberOfPlayers) {
+    this.players = [];
+    for (var i = numberOfPlayers; i > 0; i--) {
+      var player = Object.create(Player);
+      player.setNumber(i);
+      this.players.push(player2);
+      this.nextPlayer();
+    }
+  },
+  player2: function() {
+    this.currentPlayer = this.players.pop();
+    this.players.unshift(this.currentPlayer);
+    return this.currentPlayer;
+  },
+  over: function() {
+    return this.players.some(function(player) {
+      return player.score >= 100;
+    });
+  },
+  winner: function() {
+    return this.players.reduce(function(highestScorerYet, currentPlayer) {
+      if (highestScorerYet.score > currentPlayer.score) {
+        return highestScorerYet;
+      } else {
+        return currentPlayer;
+      }
+    });
+  }
+};
+
+$(function() {
+  function endTurn() {
+    $("#player" + currentPlayer.number + "-score").empty().append(currentPlayer.score);
+    currentPlayer = game.nextPlayer();
+  }
+
+  function newTurn() {
+    $("#turn").hide();
+    $("#current-player").empty().append(currentPlayer.number);
+    var currentTurn = Object.create(Turn);
+    currentTurn.setPlayer(currentPlayer);
+    return currentTurn;
+  }
+
+  var game = Object.create(Game);
+  game.createPlayers(2);
+  var currentPlayer = game.currentPlayer;
+  var currentTurn = newTurn();
+
+  $("button#Roll dice").click(function() {
+    var currentRoll = currentTurn.Roll();
+    $("#current-roll").empty().append(currentRoll);
+    $("#current-turn-score").empty().append(currentTurn.points);
+    $("#turn").show();
+    if (currentTurn.over) {
+      alert("Oops! You Rolled 1. Your turn is over")
+      endTurn();
+      currentTurn = newTurn();
+    }
+  });
+
+  $("button#hold").click(function() {
+    currentTurn.hold();
+    endTurn();
+    alert("You scored " + currentTurn.points + " points this turn.");
+    if (game.over()) {
+      alert("Player " + game.winner().number + " wins!")
+    } else {
+      currentTurn = newTurn();
+    }
+  });
 });
-
-
-
-document.querySelector('.btn-hold').addEventListener('click', function(){
-		if (gamePlaying) {
-			disableBtn(btnRoll, 1000);
-			scores[activePlayer] += roundScore;
-			document.querySelector('#score-' + activePlayer).textContent = scores[activePlayer];
-			if (scores[activePlayer] >= 100) {
-				document.querySelector('#name-' + activePlayer).textContent = 'Winner!';
-				document.querySelector('.dice').style.display = 'none';
-				document.querySelector('.player-' + activePlayer + '-panel').classList.add('winner-' + activePlayer);
-				document.querySelector('.player-' + activePlayer + '-panel').classList.remove('active-' + activePlayer);
-				gamePlaying = false;
-			} else {
-				nextPlayer();
-			}
-		}
-
-
-});
-document.querySelector('.btn-new').addEventListener();
-document.querySelector('.btn-rules').addEventListener('click', function(){
-	    var games = document.getElementsByClassName('game-panel');
-		for(i=0;i<games.length;i++){
-			games[i].style.display = 'none';
-		}
-	    document.querySelector('.btn-back').style.display = 'block';
-		}
-});
-
-document.querySelector('.btn-back').addEventListener('click', function(){
-	    var games = document.getElementsByClassName('game-panel');
-		for(i=0;i<games.length;i++){
-			games[i].style.display = 'block';
-		}
-	    document.querySelector('.btn-back').style.display = 'none';
-		var rules = document.getElementsByClassName('rules-panel');
-		for(i=0;i<rules.length;i++){
-			rules[i].style.display = 'none';
-		}
-});
-
-function nextPlayer() {
-		var icons = document.getElementsByTagName('i');
-		for(i=0;i<icons.length;i++){
-			icons[i].classList.remove('color-' + activePlayer);
-		}
-		document.querySelector('.dice').style.display = 'none';
-		document.querySelector('.player-' + activePlayer + '-panel').classList.remove('active-' + activePlayer);
-		activePlayer ===0 ? activePlayer = 1 : activePlayer = 0;
-		roundScore = 0;
-
-		for(i=0;i<icons.length;i++){
-			icons[i].classList.add('color-' + activePlayer);
-		}
-		document.querySelector('.player-' + activePlayer + '-panel').classList.add('active-' + activePlayer);
-		document.querySelector('#current-0').textContent = '0';
-		document.querySelector('#current-1').textContent = '0';
-}
-function disableBtn(btn, time) {
-		btn.disabled = true;
-      	setTimeout(function(){btn.disabled = false;},time);
-}
-
-function hideRolledMsg(){
-	document.querySelector('.player-0-rolled-1').style.visibility = 'hidden';
-	document.querySelector('.player-1-rolled-1').style.visibility = 'hidden';
-}
